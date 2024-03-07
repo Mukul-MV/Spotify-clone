@@ -1,0 +1,31 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+body {
+  background-color: black;
+  color: white;
+}
+
+.left {
+  width: 25vw;
+  padding: 10px;
+}
+
+.right {
+  width: 75vw;
+}
+
+.home ul li {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  list-style: none;
+  padding-top: 15px;
+  font-family: "Circularsp";
+  font-weight: bold;
+}
+
+.icon-width {
+  width: 25px;
+}
