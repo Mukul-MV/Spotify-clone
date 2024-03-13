@@ -2,6 +2,21 @@ console.log("let stART JAVAsCRIPT");
 
 let currentSong = new Audio();
 
+function formatTime(seconds) {
+  // Calculate minutes and seconds
+  seconds = Math.round(seconds);
+  let minutes = Math.floor(seconds / 60);
+  let remainingSeconds = seconds % 60;
+
+  // Add leading zeros if necessary
+  let formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
+  let formattedSeconds =
+    remainingSeconds < 10 ? `0${remainingSeconds}` : `${remainingSeconds}`;
+
+  // Return the formatted time
+  return `${formattedMinutes}:${formattedSeconds}`;
+}
+
 async function getSongs() {
   let a = await fetch("http://127.0.0.1:3000/Songs/");
   let response = await a.text();
@@ -23,15 +38,23 @@ async function getSongs() {
   return songs;
 }
 
-const playMusic = (track) => {
+const playMusic = (track, pause = false) => {
   currentSong.src = "/Songs/" + track + ".mp3";
-  currentSong.play();
+  if (!pause) {
+    currentSong.play();
+  }
+  document.querySelector(".songInfo").innerHTML = decodeURI(track);
+};
+
+var splitSong = (songURL) => {
+  return songURL.split("/Songs/")[1].split(".mp3")[0];
 };
 
 async function main() {
   //get list of songs
   let songs = await getSongs();
-  console.log(songs);
+
+  playMusic(splitSong(songs[0]), true);
 
   //show all the songs in playlist
 
@@ -40,7 +63,7 @@ async function main() {
     .getElementsByTagName("ul")[0];
 
   for (var song of songs) {
-    song = song.split("/Songs/")[1].split(".mp3")[0];
+    song = splitSong(song);
 
     songUL.innerHTML =
       songUL.innerHTML +
@@ -58,11 +81,11 @@ async function main() {
   }
 
   //attach an event listner to each song
+
   Array.from(
     document.querySelector(".songPlaylist").getElementsByTagName("li")
   ).forEach((e) => {
     e.addEventListener("click", (element) => {
-      console.log(e.querySelector(".info").firstElementChild.innerHTML);
       play.src = "./images/all/pause.svg";
       playMusic(e.querySelector(".info").firstElementChild.innerHTML);
     });
@@ -77,6 +100,38 @@ async function main() {
       currentSong.pause();
       play.src = "./images/all/play2.svg";
     }
+  });
+  // listen timeupdate event
+
+  currentSong.addEventListener("timeupdate", () => {
+    document.querySelector(".songTime").innerHTML = `${formatTime(
+      currentSong.currentTime
+    )} / ${formatTime(currentSong.duration)}`;
+
+    if (currentSong.currentTime == currentSong.duration) {
+      play.src = "./images/all/play2.svg";
+    }
+
+    document.querySelector(".circle").style.left =
+      (currentSong.currentTime / currentSong.duration) * 100 + "%";
+  });
+
+  //change seek bar as per requirement
+
+  document.querySelector(".seekbar").addEventListener("click", (e) => {
+    let percent = (e.offsetX / e.target.getBoundingClientRect().width) * 100;
+    currentSong.currentTime = (currentSong.duration * percent) / 100;
+    //document.querySelector(".circle").style.left = percent + "%";
+  });
+
+  // add listner to hamburger
+  document.querySelector(".hamburg").addEventListener("click", () => {
+    document.querySelector(".left").style.left = 0 + "%";
+  });
+
+  // add listner to close button
+  document.querySelector(".cross").addEventListener("click", () => {
+    document.querySelector(".left").style.left = -150 + "%";
   });
 }
 
