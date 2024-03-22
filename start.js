@@ -1,6 +1,6 @@
-console.log("let stART JAVAsCRIPT");
-
 let currentSong = new Audio();
+let currfolder;
+let songs;
 
 function formatTime(seconds) {
   // Calculate minutes and seconds
@@ -17,8 +17,9 @@ function formatTime(seconds) {
   return `${formattedMinutes}:${formattedSeconds}`;
 }
 
-async function getSongs() {
-  let a = await fetch("http://127.0.0.1:3000/Songs/");
+async function getSongs(folder) {
+  currfolder = folder;
+  let a = await fetch(`http://127.0.0.1:3000/${folder}/`);
   let response = await a.text();
   //why we creating element , why can not use response variable directly ?
   // becuase response is of string type and div is object type , so from object we can extract info easily
@@ -35,33 +36,13 @@ async function getSongs() {
       songs.push(element.href);
     }
   }
-  return songs;
-}
-
-const playMusic = (track, pause = false) => {
-  currentSong.src = "/Songs/" + track + ".mp3";
-  if (!pause) {
-    currentSong.play();
-  }
-  document.querySelector(".songInfo").innerHTML = decodeURI(track);
-  document.querySelector(".songTime").innerHTML = `00:00 / 00:00`;
-};
-
-var splitSong = (songURL) => {
-  return songURL.split("/Songs/")[1].split(".mp3")[0];
-};
-
-async function main() {
-  //get list of songs
-  let songs = await getSongs();
-
-  playMusic(splitSong(songs[0]), true);
-
   //show all the songs in playlist
 
   let songUL = document
     .querySelector(".songPlaylist")
     .getElementsByTagName("ul")[0];
+
+  songUL.innerHTML = "";
 
   for (var song of songs) {
     song = splitSong(song);
@@ -81,8 +62,66 @@ async function main() {
   </li>`;
   }
 
-  //attach an event listner to each song
+  return songs;
+}
 
+const playMusic = (track, pause = false) => {
+  currentSong.src = `/${currfolder}/` + track + ".mp3";
+  if (!pause) {
+    currentSong.play();
+  }
+  document.querySelector(".songInfo").innerHTML = decodeURI(track);
+  document.querySelector(".songTime").innerHTML = `00:00 / 00:00`;
+};
+
+var splitSong = (songURL) => {
+  return songURL.split(`/${currfolder}/`)[1].split(".mp3")[0];
+};
+
+async function displayAlbum() {
+  let a = await fetch(`http://127.0.0.1:3000/songs/`);
+  let response = await a.text();
+  let div = document.createElement("div");
+  div.innerHTML = response;
+  let anchors = div.getElementsByTagName("a");
+
+  let cardContainer = document.querySelector(".cards");
+
+  let array = Array.from(anchors);
+  for (let index = 0; index < array.length; index++) {
+    const e = array[index];
+    if (e.href.includes("/songs")) {
+      let folder = e.href.split("/").slice(-2)[0];
+      let a = await fetch(`http://127.0.0.1:3000/songs/${folder}/info.json`);
+      let response = await a.json();
+
+      cardContainer.innerHTML =
+        cardContainer.innerHTML +
+        `<div data-folder="${folder}" class="box bder-rnd">
+        <img class="bder-rnd" src="./Songs/${folder}/cover.jpg" alt="" />
+        <h2>${response.title}</h2>
+        <p>${response.description}</p>
+        <div class="play-button">
+          <img src="./SVGs/play.svg" alt="" />
+        </div>
+      </div>
+      
+      `;
+    }
+  }
+}
+
+async function main() {
+  //get list of songs
+  songs = await getSongs("Songs/Adipurush");
+
+  playMusic(splitSong(songs[0]), true);
+
+  //display albums on the page
+
+  await displayAlbum();
+
+  //attach an event listner to each song
   Array.from(
     document.querySelector(".songPlaylist").getElementsByTagName("li")
   ).forEach((e) => {
@@ -157,22 +196,54 @@ async function main() {
     }
   });
 
+  // log in click not working
   document.querySelector(".login").addEventListener("click", () => {
     var popupWindow = window.open("", "Popup", "width=400,height=200");
 
     // Write content to the popup window
     popupWindow.document.write("<h1>Popup Window</h1>");
-    popupWindow.document.write(
-      "<p>Sorry, this feature is not working at the moment.</p>"
-    );
+    popupWindow.document.write("<p>Sorry, Bhai abhi ye kam ni kar raha</p>");
   });
 
+  //volume button working
   document
     .querySelector(".volume")
     .getElementsByTagName("input")[0]
     .addEventListener("change", (e) => {
-      currentSong.volume = parseInt(e.target.value) / 100;
+      const volume = parseInt(e.target.value);
+
+      if (volume === 0) {
+        document.querySelector(".volume > img").src = document
+          .querySelector(".volume > img")
+          .src.replace("volume", "mute");
+      } else {
+        document.querySelector(".volume > img").src = document
+          .querySelector(".volume > img")
+          .src.replace("mute", "volume");
+      }
+      currentSong.volume = volume / 100;
     });
+  //mute the volume
+  document.querySelector(".volume > img").addEventListener("click", (e) => {
+    if (e.target.src.includes("volume.svg")) {
+      e.target.src = e.target.src.replace("volume", "mute");
+      document
+        .querySelector(".volume")
+        .getElementsByTagName("input")[0].value = 0;
+    } else {
+      e.target.src = e.target.src.replace("mute", "volume");
+
+      document
+        .querySelector(".volume")
+        .getElementsByTagName("input")[0].value = 50;
+    }
+  });
+
+  Array.from(document.getElementsByClassName("box")).forEach((e) => {
+    e.addEventListener("click", async () => {
+      songs = await getSongs(`Songs/${e.dataset.folder}`);
+    });
+  });
 }
 
 main();

@@ -313,6 +313,7 @@ body {
         display: flex;
         align-items: center;
         gap: 2px;
+        cursor: pointer;
 
         /* Apply custom styles to the range input */
         input[type="range"] {
@@ -387,10 +388,12 @@ body {
 
 .hamburg {
   display: none;
+  cursor: pointer;
 }
 
 .cross {
   display: none;
+  cursor: pointer;
 }
 
 @media (max-width: 1000px) {
