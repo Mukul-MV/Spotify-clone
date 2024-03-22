@@ -44,6 +44,7 @@ const playMusic = (track, pause = false) => {
     currentSong.play();
   }
   document.querySelector(".songInfo").innerHTML = decodeURI(track);
+  document.querySelector(".songTime").innerHTML = `00:00 / 00:00`;
 };
 
 var splitSong = (songURL) => {
@@ -133,6 +134,45 @@ async function main() {
   document.querySelector(".cross").addEventListener("click", () => {
     document.querySelector(".left").style.left = -150 + "%";
   });
+
+  // update previous and forward button
+
+  document.querySelector(".previous").addEventListener("click", () => {
+    let index = songs.indexOf(currentSong.src);
+
+    if (index - 1 >= 0) {
+      playMusic(splitSong(songs[index - 1]));
+    } else {
+      alert("its first song");
+    }
+  });
+
+  document.querySelector(".forward").addEventListener("click", () => {
+    let index = songs.indexOf(currentSong.src);
+    if (index + 1 < songs.length) {
+      play.src = "./images/all/pause.svg";
+      playMusic(splitSong(songs[index + 1]));
+    } else {
+      alert("its last song");
+    }
+  });
+
+  document.querySelector(".login").addEventListener("click", () => {
+    var popupWindow = window.open("", "Popup", "width=400,height=200");
+
+    // Write content to the popup window
+    popupWindow.document.write("<h1>Popup Window</h1>");
+    popupWindow.document.write(
+      "<p>Sorry, this feature is not working at the moment.</p>"
+    );
+  });
+
+  document
+    .querySelector(".volume")
+    .getElementsByTagName("input")[0]
+    .addEventListener("change", (e) => {
+      currentSong.volume = parseInt(e.target.value) / 100;
+    });
 }
 
 main();

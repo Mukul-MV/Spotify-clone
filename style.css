@@ -300,11 +300,54 @@ body {
       font-weight: 700;
       animation: bounce 5s infinite; /* Repeat the animation infinitely every 0.5 seconds */
     }
-
-    .songTime {
+    .songTime-volume {
+      display: flex;
+      flex-direction: column;
       position: absolute;
+      align-items: flex-start;
       right: 5%;
-      font-weight: 700;
+      .songTime {
+        font-weight: 700;
+      }
+      .volume {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+
+        /* Apply custom styles to the range input */
+        input[type="range"] {
+          /* Remove default appearance */
+          -webkit-appearance: none;
+          appearance: none;
+          /* Set track color */
+          background-color: rgb(211, 211, 211);
+          /* Set dimensions */
+          width: 50%;
+          height: 2px;
+          /* Set border */
+          border: none;
+        }
+
+        /* Apply custom styles to the thumb */
+        input[type="range"]::-webkit-slider-thumb {
+          /* Set thumb color */
+          background-color: rgb(0, 0, 0);
+          /* Set thumb size */
+          width: 10px;
+          height: 10px;
+          /* Set thumb shape */
+          border-radius: 50%;
+          /* Set thumb border */
+          border: 1px solid rgb(0, 0, 0);
+          /* Set thumb cursor */
+          cursor: pointer;
+          /* Remove default appearance */
+          -webkit-appearance: none;
+          appearance: none;
+          /* Position thumb */
+          margin-top: 0px; /* Adjusted to vertically center the thumb */
+        }
+      }
     }
 
     .songButtons {
@@ -371,7 +414,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     position: relative;
-    max-height: 70vh;
+    max-height: 65vh;
     overflow: scroll;
   }
 
@@ -429,7 +472,7 @@ body {
     background-color: rgb(71, 71, 71);
     opacity: 0.7;
     width: 100%;
-    height: 12%;
+    height: 17%;
     position: absolute;
     bottom: 0;
     z-index: 1;
@@ -453,19 +496,25 @@ body {
         animation: unset; /* Repeat the animation infinitely every 0.5 seconds */
       }
 
-      .songTime {
-        display: flex;
-        justify-content: center;
+      .songTime-volume {
         position: relative;
-        font-weight: 700;
         right: unset;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 5px;
+
+        .volume {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
       }
 
       .songButtons {
         display: flex;
         justify-content: space-around;
         position: relative;
-
         left: unset;
 
         img {
