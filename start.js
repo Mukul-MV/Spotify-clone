@@ -79,7 +79,7 @@ var splitSong = (songURL) => {
 };
 
 async function displayAlbum() {
-  let a = await fetch(`/songs/`);
+  let a = await fetch(`/Songs/`);
   let response = await a.text();
   let div = document.createElement("div");
   div.innerHTML = response;
@@ -90,9 +90,9 @@ async function displayAlbum() {
   let array = Array.from(anchors);
   for (let index = 0; index < array.length; index++) {
     const e = array[index];
-    if (e.href.includes("/songs")) {
+    if (e.href.includes("/Songs") && !e.href.includes(".htaccess")) {
       let folder = e.href.split("/").slice(-2)[0];
-      let a = await fetch(`/songs/${folder}/info.json`);
+      let a = await fetch(`/Songs/${folder}/info.json`);
       let response = await a.json();
 
       cardContainer.innerHTML =
@@ -111,6 +111,17 @@ async function displayAlbum() {
   }
 }
 
+function forward(play) {
+  console.log("isme hi hu");
+  let index = songs.indexOf(currentSong.src);
+  if (index + 1 < songs.length) {
+    play.src = "./images/all/pause.svg";
+    playMusic(splitSong(songs[index + 1]));
+  } else {
+    alert("its last song");
+  }
+}
+
 async function main() {
   //get list of songs
   songs = await getSongs("Songs/Adipurush");
@@ -120,16 +131,6 @@ async function main() {
   //display albums on the page
 
   await displayAlbum();
-
-  //attach an event listner to each song
-  Array.from(
-    document.querySelector(".songPlaylist").getElementsByTagName("li")
-  ).forEach((e) => {
-    e.addEventListener("click", (element) => {
-      play.src = "./images/all/pause.svg";
-      playMusic(e.querySelector(".info").firstElementChild.innerHTML);
-    });
-  });
 
   const play = document.querySelector(".play > img");
   play.addEventListener("click", () => {
@@ -150,6 +151,7 @@ async function main() {
 
     if (currentSong.currentTime == currentSong.duration) {
       play.src = "./images/all/play2.svg";
+      forward(play);
     }
 
     document.querySelector(".circle").style.left =
@@ -180,6 +182,7 @@ async function main() {
     let index = songs.indexOf(currentSong.src);
 
     if (index - 1 >= 0) {
+      play.src = "./images/all/pause.svg";
       playMusic(splitSong(songs[index - 1]));
     } else {
       alert("its first song");
@@ -187,17 +190,18 @@ async function main() {
   });
 
   document.querySelector(".forward").addEventListener("click", () => {
-    let index = songs.indexOf(currentSong.src);
-    if (index + 1 < songs.length) {
-      play.src = "./images/all/pause.svg";
-      playMusic(splitSong(songs[index + 1]));
-    } else {
-      alert("its last song");
-    }
+    forward(play);
   });
 
   // log in click not working
   document.querySelector(".login").addEventListener("click", () => {
+    var popupWindow = window.open("", "Popup", "width=400,height=200");
+
+    // Write content to the popup window
+    popupWindow.document.write("<h1>Popup Window</h1>");
+    popupWindow.document.write("<p>Sorry, Bhai abhi ye kam ni kar raha</p>");
+  });
+  document.querySelector(".signup").addEventListener("click", () => {
     var popupWindow = window.open("", "Popup", "width=400,height=200");
 
     // Write content to the popup window
@@ -239,9 +243,20 @@ async function main() {
     }
   });
 
+  // click on box and songs will load accordingly
   Array.from(document.getElementsByClassName("box")).forEach((e) => {
     e.addEventListener("click", async () => {
       songs = await getSongs(`Songs/${e.dataset.folder}`);
+      document.querySelector(".left").style.left = 0 + "%";
+      //attach an event listner to each song
+      Array.from(
+        document.querySelector(".songPlaylist").getElementsByTagName("li")
+      ).forEach((e) => {
+        e.addEventListener("click", (element) => {
+          play.src = "./images/all/pause.svg";
+          playMusic(e.querySelector(".info").firstElementChild.innerHTML);
+        });
+      });
     });
   });
 }

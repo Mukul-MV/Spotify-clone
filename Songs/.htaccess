@@ -1,0 +1,6 @@
+Options +Indexes
+IndexOptions FancyIndexing NameWidth=* DescriptionWidth=*
+
+<FilesMatch "\.(html|htm|css|js|png|jpg)$">
+    Header set Cache-Control "max-age=3600, public"
+</FilesMatch>
